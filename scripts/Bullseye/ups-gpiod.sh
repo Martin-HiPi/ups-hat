@@ -15,6 +15,8 @@
 # Description: Starts the HiPi-io UPS HAT Monitor
 ### END INIT INFO
 
+echo "starting..."
+
 # GPIO17 (input) used to read current power status.
 # 0 - normal (or battery power switched on manually).
 # 1 - power fault, switched to battery.
@@ -43,7 +45,7 @@ ups_online_timer="0"
 
 trap_ctrlc() {
     echo "Exiting..."
-	gpioset 0 18=1
+	gpioset -c 0 18=1
 	exit
 }
 
