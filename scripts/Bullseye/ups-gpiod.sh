@@ -15,7 +15,7 @@
 # Description: Starts the HiPi-io UPS HAT Monitor
 ### END INIT INFO
 
-echo "starting..."
+echo "Begin..."
 
 # GPIO17 (input) used to read current power status.
 # 0 - normal (or battery power switched on manually).
@@ -34,32 +34,38 @@ echo "starting..."
 #echo out > /sys/class/gpio/gpio18/direction
 #echo 0 > /sys/class/gpio/gpio18/value
 # use gpioset gpiochip0 GPIO18
-gpioset -c 0 18=0
+echo "Init..."
+
 
 power_timer=0
-inval_power="0"
+inval_power=0
 
-ups_online1="0"
-ups_online2="0"
-ups_online_timer="0"
+ups_online1=0
+ups_online2=0
+ups_online_timer=0
 
+echo "Setting exit trap..."
 trap_ctrlc() {
     echo "Exiting..."
-	gpioset -c 0 18=1
+	gpioset --daemonize -c 0 18=1
 	exit
 }
 
 trap trap_ctrlc INT
 
+echo "Starting..."
+gpioset --daemonize -c 0 18=0
+
 while true
 do
+	#echo "loop"
 	# Read GPIO27 pin value
 	# Normally, UPS toggles this pin every 0.5s
-	ups_online1=$(gpioget -c 0 27)
+	ups_online1=$(gpioget --numeric -c 0 27)
 
 	sleep 0.1
 
-	ups_online2=$(gpioget -c 0 27)
+	ups_online2=$(gpioget --numeric -c 0 27)
 
 	ups_online_timer=$((ups_online_timer+1))
 
@@ -83,7 +89,7 @@ do
 	fi
 
 	# Read GPIO17 pin value (What is the power status?)
-	inval_power=$(gpioget -c 0 17)
+	inval_power=$(gpioget --numeric -c 0 17)
 
 	if [ "$inval_power" -eq 1 ]; then
 		power_timer=$((power_timer+1))
