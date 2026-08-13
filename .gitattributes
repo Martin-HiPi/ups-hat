@@ -1,0 +1,26 @@
+# Line endings: LF everywhere, no exceptions.
+#
+# This repo's payload is shell scripts, Python scripts and a systemd unit
+# that execute on Raspberry Pi OS. A CRLF shebang is not a valid
+# interpreter path -- `#!/bin/sh\r` fails at exec time with
+#
+#     bad interpreter: No such file or directory
+#
+# which is a confusing error, since the file plainly exists. The systemd
+# unit fails the same way on its ExecStart. Editing on Windows without
+# this file silently rewrites every file to CRLF; committing that would
+# break the repo for every user, including via the `curl | bash`
+# one-liner in README.md.
+#
+# `text=auto eol=lf` means: detect text vs binary, store text as LF in
+# the repository, and check it out as LF on every platform -- Windows
+# included. Editors handle LF fine; Notepad has since Win10 1809.
+
+* text=auto eol=lf
+
+# Explicit for the executable payload, so intent survives someone
+# relaxing the wildcard above.
+*.sh        text eol=lf
+*.py        text eol=lf
+*.service   text eol=lf
+*.md        text eol=lf
